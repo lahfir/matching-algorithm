@@ -163,6 +163,6 @@ def get_matching_developers(json_response):
     )
     response = {
         "status": "success",
-        "data": sorted_developers.to_dict(orient="records"),
+        "data": json.loads(sorted_developers.to_json(orient="records")),
     }
     return response
