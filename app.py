@@ -132,7 +132,7 @@ def get_matching_developers(json_response):
 
 @app.route("/match_developers", methods=["GET"])
 def match_developers():
-    prompt = request.json.get("prompt")
+    prompt = request.args.get("prompt")
 
     try:
         if not prompt:
