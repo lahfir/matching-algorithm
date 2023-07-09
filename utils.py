@@ -32,7 +32,7 @@ def create_response(message, status_code):
     """
 
     if status_code >= 200 and status_code < 400:
-        return jsonify(
+        response = jsonify(
             status=response_structure(status_code),
             data=list(message),
             status_code=status_code,
@@ -40,11 +40,14 @@ def create_response(message, status_code):
         )
 
     else:
-        return jsonify(
+        response = jsonify(
             status=response_structure(status_code),
             message=message,
             status_code=status_code,
         )
+
+    response.headers.add("Content-Type", "application/json")  # Set content type to JSON
+    return response
 
 
 def get_relevant_tags(prompt):
