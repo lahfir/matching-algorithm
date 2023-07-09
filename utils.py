@@ -1,6 +1,6 @@
 import json
 from constants import tags_df, DATA_BASE, developers_df, pd, nlp
-from flask import jsonify
+from flask import Response
 
 
 def response_structure(code):
@@ -32,21 +32,23 @@ def create_response(message, status_code):
     """
 
     if status_code >= 200 and status_code < 400:
-        response = jsonify(
-            status=response_structure(status_code),
-            data=list(message),
-            status_code=status_code,
-            message="Succesfully got the experts",
-        )
-
+        response = {
+            "status": response_structure(status_code),
+            "data": list(message),
+            "message": message,
+            "status_code": status_code,
+        }
     else:
-        response = jsonify(
-            status=response_structure(status_code),
-            message=message,
-            status_code=status_code,
-        )
+        response = {
+            "status": response_structure(status_code),
+            "message": message,
+            "status_code": status_code,
+        }
 
-    response.headers.add("Content-Type", "application/json")  # Set content type to JSON
+    response_str = json.dumps(response)
+    response = Response(
+        response_str, status=status_code, content_type="application/json"
+    )
     return response
 
 
