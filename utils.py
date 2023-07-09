@@ -32,21 +32,17 @@ def create_response(message, status_code):
     """
     if status_code >= 200 and status_code < 400:
         return jsonify(
-            {
-                "status": response_structure(status_code),
-                "data": message,
-                "status_code": status_code,
-                "message": "Succesfully got the experts",
-            }
+            status=response_structure(status_code),
+            data=message,
+            status_code=status_code,
+            message="Succesfully got the experts",
         )
 
     else:
         return jsonify(
-            {
-                "status": response_structure(status_code),
-                "message": message,
-                "status_code": status_code,
-            }
+            status=response_structure(status_code),
+            message=message,
+            status_code=status_code,
         )
 
 
