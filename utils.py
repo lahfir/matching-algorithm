@@ -1,19 +1,55 @@
 import json
 from constants import tags_df, DATA_BASE, developers_df, pd, nlp
+from flask import jsonify
 
 
 def response_structure(code):
-    if code >= 200 and code < 400:
-        return "success"
-    elif code >= 400:
-        return "error"
+    """
+    Determine the response status based on the status code.
+
+    Args:
+        code (int): The status code.
+
+    Returns:
+        str: The response status.
+
+    """
+    return "success" if 200 <= code < 400 else "error"
+
+
+def create_response(message, status_code):
+    """
+    Create the JSON response structure.
+
+    Args:
+        message (str): The response message.
+        status_code (int): The status code.
+
+    Returns:
+        dict: The JSON response.
+
+    """
+    return jsonify(
+        {
+            "status": response_structure(status_code),
+            "message": message,
+            "status_code": status_code,
+        }
+    )
 
 
 def get_relevant_tags(prompt):
-    # Extract relevant keywords using the language model
-    keywords = extract_keywords(prompt)
+    """
+    Get the relevant tags based on the prompt.
 
-    # Search for matching tags based on the extracted keywords
+    Args:
+        prompt (str): The user prompt.
+
+    Returns:
+        list: The list of matching tags.
+
+    """
+    keywords = extract_keywords(prompt)
     matching_tags = []
     for index, row in tags_df.iterrows():
         tag_name = row["Tag name"]
@@ -23,21 +59,22 @@ def get_relevant_tags(prompt):
             or (not pd.isnull(description) and keyword.lower() in description.lower())
             for keyword in keywords
         ):
-            matching_tags.append(
-                {
-                    "tag_name": tag_name,
-                    "emoji": row["emoji"],
-                }
-            )
-
+            matching_tags.append({"tag_name": tag_name, "emoji": row["emoji"]})
     return matching_tags
 
 
 def get_relevant_platforms(keywords):
-    # Load the platforms.csv file into a pandas DataFrame
-    platforms_df = pd.read_csv(DATA_BASE + "Platforms.csv")
+    """
+    Get the relevant platforms based on the keywords.
 
-    # Search for matching platforms based on the extracted keywords
+    Args:
+        keywords (list): The extracted keywords.
+
+    Returns:
+        list: The list of matching platforms.
+
+    """
+    platforms_df = pd.read_csv(DATA_BASE + "Platforms.csv")
     matching_platforms = []
     for index, row in platforms_df.iterrows():
         platform_name = row["Name"]
@@ -47,41 +84,58 @@ def get_relevant_platforms(keywords):
             or (not pd.isnull(description) and keyword.lower() in description.lower())
             for keyword in keywords
         ):
-            matching_platforms.append(
-                {
-                    "platform_name": platform_name,
-                }
-            )
-
+            matching_platforms.append({"platform_name": platform_name})
     return matching_platforms
 
 
 def extract_keywords(prompt):
-    # Use the language model to extract relevant keywords from the prompt
+    """
+    Extract relevant keywords from the prompt.
+
+    Args:
+        prompt (str): The user prompt.
+
+    Returns:
+        list: The extracted keywords.
+
+    """
     doc = nlp(prompt)
-
-    # Extract noun phrases and lemmatize them as keywords
     keywords = [token.lemma_ for token in doc if token.pos_ in ["NOUN", "PROPN"]]
-
     return keywords
 
 
 def generate_json_response(tags, platforms):
+    """
+    Generate a JSON response based on the matching tags and platforms.
+
+    Args:
+        tags (list): The matching tags.
+        platforms (list): The matching platforms.
+
+    Returns:
+        str: The JSON response.
+
+    """
     response = {"tags": tags, "platforms": platforms}
     return json.dumps(response)
 
 
 def get_matching_developers(json_response):
-    # Convert the JSON response to a dictionary
-    response_dict = json.loads(json_response)
+    """
+    Get the matching developers based on the JSON response.
 
-    # Get the tag names and platform names from the JSON response
+    Args:
+        json_response (str): The JSON response.
+
+    Returns:
+        dict: The response dictionary containing the status and the data.
+
+    """
+    response_dict = json.loads(json_response)
     tag_names = [tag["tag_name"] for tag in response_dict["tags"]]
     platform_names = [
         platform["platform_name"] for platform in response_dict["platforms"]
     ]
-
-    # Create a column to store the number of matching tags and platforms for each developer
     developers_df["match_count"] = developers_df.apply(
         lambda row: sum(tag_name in row["list_tags"] for tag_name in tag_names)
         + sum(
@@ -89,19 +143,12 @@ def get_matching_developers(json_response):
         ),
         axis=1,
     )
-
-    # Filter the developers who have at least one matching tag or platform
     matching_developers = developers_df[developers_df["match_count"] > 1]
-
-    # Sort the matching developers based on the number of matches and scores
     sorted_developers = matching_developers.sort_values(
         by=["match_count", "score"], ascending=[False, False]
     )
-
-    # Create the response dictionary
     response = {
         "status": "success",
         "data": sorted_developers.to_dict(orient="records"),
     }
-
     return response

@@ -11,7 +11,7 @@ from utils import (
     get_matching_developers,
     get_relevant_tags,
     get_relevant_platforms,
-    response_structure,
+    create_response,
 )
 from middlewares import forbidden_words_middleware
 
@@ -23,7 +23,7 @@ def before_request():
     try:
         forbidden_words_middleware()
     except ForbiddenWordsError as e:
-        return jsonify({"status": "error", "message": str(e.message)}), 403
+        return create_response(str(e.message), 403)
 
 
 @app.route("/match_developers", methods=["GET"])
@@ -34,59 +34,33 @@ def match_developers():
         if not prompt:
             raise EmptyPromptError()
 
-        # Extract keywords from the prompt
         keywords = extract_keywords(prompt)
 
-        # Check if the keywords are empty or contain generic phrases
         if not keywords or all(
             keyword.lower() in ["i want", "i need"] for keyword in keywords
         ):
             raise IncompletePromptError()
 
         relevant_tags = get_relevant_tags(prompt)
-
         relevant_platforms = get_relevant_platforms(prompt)
-
         json_response = generate_json_response(relevant_tags, relevant_platforms)
-
         matching_developers = get_matching_developers(json_response)
 
         if not matching_developers["data"]:
             raise NoMatchingDevelopersError()
 
-        status_code = 200
-        response = {
-            "status": response_structure(status_code),
-            "data": matching_developers["data"],
-            "status_code": status_code,
-        }
+        return create_response(matching_developers["data"], 200)
 
-    except EmptyPromptError as e:
-        status_code = 400
-        response = {
-            "status": response_structure(status_code),
-            "message": str(e.message),
-            "status_code": status_code,
-        }
-
-    except NoMatchingDevelopersError as e:
-        status_code = 404
-        response = {
-            "status": response_structure(status_code),
-            "message": str(e.message),
-            "status_code": status_code,
-        }
-
-    except IncompletePromptError as e:
-        status_code = 422
-        response = {
-            "status": response_structure(status_code),
-            "message": str(e.message),
-            "status_code": status_code,
-        }
-
-    return jsonify(response), status_code
+    except (EmptyPromptError, NoMatchingDevelopersError, IncompletePromptError) as e:
+        status_code = (
+            400
+            if isinstance(e, EmptyPromptError)
+            else 404
+            if isinstance(e, NoMatchingDevelopersError)
+            else 422
+        )
+        return create_response(str(e.message), status_code)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
