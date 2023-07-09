@@ -35,7 +35,7 @@ def create_response(message, status_code):
         response = {
             "status": response_structure(status_code),
             "data": list(message),
-            "message": message,
+            "message": "Experts got succesfully",
             "status_code": status_code,
         }
     else:
