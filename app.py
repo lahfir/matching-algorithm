@@ -130,7 +130,7 @@ def get_matching_developers(json_response):
     return response
 
 
-@app.route("/match_developers", methods=["POST"])
+@app.route("/match_developers", methods=["GET"])
 def match_developers():
     prompt = request.json.get("prompt")
 
