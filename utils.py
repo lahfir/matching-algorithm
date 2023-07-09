@@ -23,19 +23,31 @@ def create_response(message, status_code):
 
     Args:
         message (str): The response message.
+        message (list): The sorted list.
         status_code (int): The status code.
 
     Returns:
         dict: The JSON response.
 
     """
-    return jsonify(
-        {
-            "status": response_structure(status_code),
-            "message": message,
-            "status_code": status_code,
-        }
-    )
+    if status_code >= 200 and status_code < 400:
+        return jsonify(
+            {
+                "status": response_structure(status_code),
+                "data": message,
+                "status_code": status_code,
+                "message": "Succesfully got the experts",
+            }
+        )
+
+    else:
+        return jsonify(
+            {
+                "status": response_structure(status_code),
+                "message": message,
+                "status_code": status_code,
+            }
+        )
 
 
 def get_relevant_tags(prompt):
