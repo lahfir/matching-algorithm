@@ -28,7 +28,7 @@ class NoMatchingDevelopersError(Exception):
 
 def get_relevant_tags(prompt):
     # Load the tags.csv file into a pandas DataFrame
-    tags_df = pd.read_csv("tags.csv")
+    tags_df = pd.read_csv("Tags.csv")
 
     # Extract relevant keywords using the language model
     keywords = extract_keywords(prompt)
@@ -55,7 +55,7 @@ def get_relevant_tags(prompt):
 
 def get_relevant_platforms(prompt):
     # Load the platforms.csv file into a pandas DataFrame
-    platforms_df = pd.read_csv("platforms.csv")
+    platforms_df = pd.read_csv("Platforms.csv")
 
     # Extract relevant keywords using the language model
     keywords = extract_keywords(prompt)
