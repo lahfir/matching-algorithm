@@ -2,3 +2,4 @@ en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_
 Flask==2.2.2
 pandas==1.4.4
 spacy==3.6.0
+gunicorn==20.1.0
