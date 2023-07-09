@@ -150,6 +150,7 @@ def get_matching_developers(json_response):
     platform_names = [
         platform["platform_name"] for platform in response_dict["platforms"]
     ]
+
     developers_df["match_count"] = developers_df.apply(
         lambda row: sum(tag_name in row["list_tags"] for tag_name in tag_names)
         + sum(
@@ -157,7 +158,12 @@ def get_matching_developers(json_response):
         ),
         axis=1,
     )
+    # Convert the comma-separated strings to arrays of strings
+    developers_df["list_tags"] = developers_df["list_tags"].str.split(",")
+    developers_df["list_platforms"] = developers_df["list_platforms"].str.split(",")
+
     matching_developers = developers_df[developers_df["match_count"] > 1]
+
     sorted_developers = matching_developers.sort_values(
         by=["match_count", "score"], ascending=[False, False]
     )
