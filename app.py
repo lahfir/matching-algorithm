@@ -11,6 +11,7 @@ from utils import (
     get_matching_developers,
     get_relevant_tags,
     get_relevant_platforms,
+    response_structure,
 )
 from middlewares import forbidden_words_middleware
 
@@ -53,32 +54,36 @@ def match_developers():
         if not matching_developers["data"]:
             raise NoMatchingDevelopersError()
 
-        response = {
-            "status": "success",
-            "data": matching_developers["data"],
-        }
         status_code = 200
+        response = {
+            "status": response_structure(status_code),
+            "data": matching_developers["data"],
+            "status_code": status_code,
+        }
 
     except EmptyPromptError as e:
-        response = {
-            "status": "error",
-            "message": str(e.message),
-        }
         status_code = 400
+        response = {
+            "status": response_structure(status_code),
+            "message": str(e.message),
+            "status_code": status_code,
+        }
 
     except NoMatchingDevelopersError as e:
-        response = {
-            "status": "error",
-            "message": str(e.message),
-        }
         status_code = 404
+        response = {
+            "status": response_structure(status_code),
+            "message": str(e.message),
+            "status_code": status_code,
+        }
 
     except IncompletePromptError as e:
-        response = {
-            "status": "error",
-            "message": str(e.message),
-        }
         status_code = 422
+        response = {
+            "status": response_structure(status_code),
+            "message": str(e.message),
+            "status_code": status_code,
+        }
 
     return jsonify(response), status_code
 

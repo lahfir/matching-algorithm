@@ -2,6 +2,13 @@ import json
 from constants import tags_df, DATA_BASE, developers_df, pd, nlp
 
 
+def response_structure(code):
+    if code >= 200 and code < 400:
+        return "success"
+    elif code >= 400:
+        return "error"
+
+
 def get_relevant_tags(prompt):
     # Extract relevant keywords using the language model
     keywords = extract_keywords(prompt)
