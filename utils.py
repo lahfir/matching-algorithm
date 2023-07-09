@@ -30,10 +30,11 @@ def create_response(message, status_code):
         dict: The JSON response.
 
     """
+
     if status_code >= 200 and status_code < 400:
         return jsonify(
             status=response_structure(status_code),
-            data=message,
+            data=list(message),
             status_code=status_code,
             message="Succesfully got the experts",
         )
