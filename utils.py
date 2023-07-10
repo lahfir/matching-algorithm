@@ -1,5 +1,5 @@
 import json
-from constants import tags_df, DATA_BASE, pd, nlp
+from constants import DATA_BASE, pd, nlp
 from flask import Response
 
 
@@ -63,7 +63,9 @@ def get_relevant_tags(prompt):
         list: The list of matching tags.
 
     """
+    tags_df = pd.read_csv(DATA_BASE + "Tags.csv")
     keywords = extract_keywords(prompt)
+
     matching_tags = []
     for index, row in tags_df.iterrows():
         tag_name = row["Tag name"]
@@ -77,7 +79,7 @@ def get_relevant_tags(prompt):
     return matching_tags
 
 
-def get_relevant_platforms(keywords):
+def get_relevant_platforms(prompt):
     """
     Get the relevant platforms based on the keywords.
 
@@ -89,6 +91,8 @@ def get_relevant_platforms(keywords):
 
     """
     platforms_df = pd.read_csv(DATA_BASE + "Platforms.csv")
+    keywords = extract_keywords(prompt)
+
     matching_platforms = []
     for index, row in platforms_df.iterrows():
         platform_name = row["Name"]
