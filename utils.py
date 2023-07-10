@@ -145,7 +145,7 @@ def get_matching_developers(json_response):
         dict: The response dictionary containing the status and the data.
 
     """
-    developers_df = pd.read_csv("Data/Developers.csv")
+    developers_df = pd.read_csv("data/Developers.csv")
     response_dict = json.loads(json_response)
     tag_names = [tag["tag_name"] for tag in response_dict["tags"]]
     platform_names = [
