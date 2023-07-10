@@ -1,5 +1,5 @@
 import json
-from constants import tags_df, DATA_BASE, developers_df, pd, nlp
+from constants import tags_df, DATA_BASE, pd, nlp
 from flask import Response
 
 
@@ -145,6 +145,7 @@ def get_matching_developers(json_response):
         dict: The response dictionary containing the status and the data.
 
     """
+    developers_df = pd.read_csv("Data/Developers.csv")
     response_dict = json.loads(json_response)
     tag_names = [tag["tag_name"] for tag in response_dict["tags"]]
     platform_names = [
@@ -158,6 +159,7 @@ def get_matching_developers(json_response):
         ),
         axis=1,
     )
+
     # Convert the comma-separated strings to arrays of strings
     developers_df["list_tags"] = developers_df["list_tags"].str.split(",")
     developers_df["list_platforms"] = developers_df["list_platforms"].str.split(",")
